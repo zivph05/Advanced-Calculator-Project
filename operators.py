@@ -1,4 +1,4 @@
-from exceptions import ExpressionException
+from exceptions import ExpressionException, SyntaxException
 
 
 def factorial(op: int) -> int:
@@ -31,6 +31,7 @@ def calculate(op1, op2, operation: str):
     :param op2: the second operand
     :param operation: the operation
     :return: result of the ex. (op1 ___ op2)
+    raises: if in ! operation has a float value or a negative number
     """
     res = 0
 
@@ -107,17 +108,25 @@ def otzma(operation: str) -> int:
 
 
 def check_validity(op1, op2, operation: str) -> bool:
+    """
+    Checks if the operation at hand is valid
+    :param op1: part of operation - first operand
+    :param op2: part of operation - second operand
+    :param operation: part of operation - operation
+    :return: if operation is valid
+    :raises: if operation is not in the right syntax...
+    """
     if (op1 is None or op2 is None) and operation != '-' and operation != '~' and operation != '!':
-        raise ExpressionException("Operation is not acceptable, you need the two operands to be other than none... "
-                                  "\nExpression:", op1, operation, op2, "\nRight Syntax: x", operation, "y")
+        raise SyntaxException("Operation is not acceptable, you need the two operands to be other than none... "
+                              "\nExpression:", op1, operation, op2, "\nRight Syntax: x", operation, "y")
     if (op1 is None or op2 is not None) and operation == '~':
-        raise ExpressionException("Operation is not acceptable, in ~ operation, you need the first operand to be none "
-                                  "and the second one needs to be other than none... \nRight syntax:", operation, "x")
+        raise SyntaxException("Operation is not acceptable, in ~ operation, you need the first operand to be none "
+                              "and the second one needs to be other than none... \nRight syntax:", operation, "x")
     if op2 is None and operation == '-':
-        raise ExpressionException("Operation is not acceptable, in - operation, you need the first operand to be none "
-                                  "and the second one needs to be other than none... "
-                                  "\nRight syntax:", operation, "x or: x", operation, "y")
+        raise SyntaxException("Operation is not acceptable, in - operation, you need the first operand to be none "
+                              "and the second one needs to be other than none... "
+                              "\nRight syntax:", operation, "x or: x", operation, "y")
     if op2 is not None and operation == '!':
-        raise ExpressionException("Operation is not acceptable, in ! operation, you need the second operand to be "
-                                  "none... \nExpression:", op1, operation, op2)
+        raise SyntaxException("Operation is not acceptable, in ! operation, you need the second operand to be "
+                              "none... \nExpression:", op1, operation, op2)
     return True
