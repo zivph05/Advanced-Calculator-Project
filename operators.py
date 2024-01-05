@@ -34,6 +34,12 @@ def calculate(op1, op2, operation: str):
     """
     res = 0
 
+    # Check if the expression isn't valid
+    try:
+        check_validity(op1, op2, operation)
+    except ExpressionException:
+        pass
+
     # Check the operation and operate as such
     match operation:
         case '+':
@@ -43,6 +49,8 @@ def calculate(op1, op2, operation: str):
         case '*':
             res = op1 * op2
         case '/':
+            if op2 == 0:
+                raise ExpressionException("Can't have second operand be zero in division:", op1, "/", op2)
             res = op1 / op2
         case '^':
             res = op1 ** op2
@@ -96,3 +104,20 @@ def otzma(operation: str) -> int:
             return 5
         case '!':
             return 6
+
+
+def check_validity(op1, op2, operation: str) -> bool:
+    if (op1 is None or op2 is None) and operation != '-' and operation != '~' and operation != '!':
+        raise ExpressionException("Operation is not acceptable, you need the two operands to be other than none... "
+                                  "\nExpression:", op1, operation, op2, "\nRight Syntax: x", operation, "y")
+    if (op1 is None or op2 is not None) and operation == '~':
+        raise ExpressionException("Operation is not acceptable, in ~ operation, you need the first operand to be none "
+                                  "and the second one needs to be other than none... \nRight syntax:", operation, "x")
+    if op2 is None and operation == '-':
+        raise ExpressionException("Operation is not acceptable, in - operation, you need the first operand to be none "
+                                  "and the second one needs to be other than none... "
+                                  "\nRight syntax:", operation, "x or: x", operation, "y")
+    if op2 is not None and operation == '!':
+        raise ExpressionException("Operation is not acceptable, in ! operation, you need the second operand to be "
+                                  "none... \nExpression:", op1, operation, op2)
+    return True
