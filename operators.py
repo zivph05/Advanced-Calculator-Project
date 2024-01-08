@@ -1,7 +1,7 @@
 from exceptions import ExpressionException, SyntaxException
 
 
-def factorial(op: int) -> int:
+def factorial(op):
     """
     Calculates the factorial of a number (op!)
     :param op: the number in calculation
@@ -24,7 +24,7 @@ def mean(op1, op2):
     return (op1 + op2) / 2
 
 
-def calculate(op1, op2, operation: str):
+def calculate(op1, op2, operation):
     """
     Calculates the ex. that is given
     :param op1: the first operand
@@ -75,7 +75,7 @@ def calculate(op1, op2, operation: str):
     return res
 
 
-def otzma(operation: str) -> int:
+def otzma(operation):
     """
     Gives the "power of" the operation given
     :param operation: the operation that is being evaluated
@@ -107,7 +107,7 @@ def otzma(operation: str) -> int:
             return 6
 
 
-def check_validity(op1, op2, operation: str) -> bool:
+def check_validity(op1, op2, operation):
     """
     Checks if the operation at hand is valid
     :param op1: part of operation - first operand
