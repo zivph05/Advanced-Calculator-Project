@@ -1,5 +1,23 @@
 from exceptions import ExpressionException, SyntaxException
 
+operators = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
+
+
+def op_type(op):
+    if op == '~':
+        return 'r'
+    elif op == '!' or op == '#':
+        return 'l'
+    return 'm'
+
+
+def count(op):
+    res = 0
+    while op > 10:
+        res += int(op % 10)
+        op /= 10
+    return res + int(op)
+
 
 def factorial(op):
     """
@@ -8,12 +26,11 @@ def factorial(op):
     :return: the factorial of op (op!)
     """
     res = 1
-    for i in range(2, op):
+    for i in range(2, op + 1):
         res *= i
     return res
 
 
-# put in int or float?
 def mean(op1, op2):
     """
     Calculates the mean of op1 of op2 (op1 @ op2)
@@ -36,17 +53,21 @@ def calculate(op1, op2, operation):
     res = 0
 
     # Check if the expression isn't valid
-    try:
-        check_validity(op1, op2, operation)
-    except ExpressionException:
-        pass
+    #
+    # try:
+    #    check_validity(op1, op2, operation)
+    # except ExpressionException:
+    #    pass
 
     # Check the operation and operate as such
     match operation:
         case '+':
             res = op1 + op2
         case '-':
-            res = op1 - op2
+            if op1 == 0:
+                res = -op2
+            else:
+                res = op1 - op2
         case '*':
             res = op1 * op2
         case '/':
@@ -58,7 +79,7 @@ def calculate(op1, op2, operation):
         case '%':
             res = op1 % op2
         case '~':
-            res = -op1
+            res = -op2
         case '@':
             res = mean(op1, op2)
         case '$':
@@ -72,39 +93,19 @@ def calculate(op1, op2, operation):
                 elif op1 < 0:
                     raise ExpressionException("Can't calculate a factorial on a negative number")
             res = factorial(op1)
+        case '#':
+            res = count(op1)
     return res
 
 
-def otzma(operation):
+def priority(operation):
     """
     Gives the "power of" the operation given
     :param operation: the operation that is being evaluated
     :return: the power of the operation given
     """
     # Check the operation and return the "power of" the operation
-    match operation:
-        case '+':
-            return 1
-        case '-':
-            return 1
-        case '*':
-            return 2
-        case '/':
-            return 2
-        case '^':
-            return 3
-        case '%':
-            return 4
-        case '~':
-            return 6
-        case '@':
-            return 5
-        case '$':
-            return 5
-        case '&':
-            return 5
-        case '!':
-            return 6
+    return operators.get(operation)
 
 
 def check_validity(op1, op2, operation):
@@ -130,3 +131,12 @@ def check_validity(op1, op2, operation):
         raise SyntaxException("Operation is not acceptable, in ! operation, you need the second operand to be "
                               "none... \nExpression:", op1, operation, op2)
     return True
+
+
+def is_operator(ch):
+    """
+    Checks if char given is in operators list
+    :param ch: the char in check
+    :return: True if char given is in operators list, else False.
+    """
+    return ch in operators
