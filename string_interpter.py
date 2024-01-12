@@ -78,7 +78,7 @@ def expression_to_lst(expression):
                         in_min_exp = True
                     else:
                         in_min_exp = False
-                        output.append('u')
+                        output.append('-')
                 else:
                     in_min_exp = False
                     output.append(ch)
@@ -117,7 +117,7 @@ def do(root):
 
 
 def main():
-    a = "2+--3!"
+    a = "(12+6)-(-5&--1)"
     inorder(create_tree(turn_to_postfix(expression_to_lst(a))))
     print("output: ", do(create_tree(turn_to_postfix(expression_to_lst(a)))))
 
