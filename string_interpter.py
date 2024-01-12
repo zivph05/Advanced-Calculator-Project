@@ -1,4 +1,5 @@
 from binary_tree import TreeNode
+from exceptions import ExpressionException
 from operators import is_operator, priority, op_type, calculate
 
 
@@ -71,25 +72,32 @@ def expression_to_lst(expression):
                         output.pop()
                         output.pop()
                         in_min_exp = False
-                    else:
-                        output.append(0)
-                        output.append(ch)
+                    elif output and output[-1] != ')':
+                        output.append('(')
+                        output.append('u')
                         in_min_exp = True
+                    else:
+                        in_min_exp = False
+                        output.append('u')
                 else:
                     in_min_exp = False
                     output.append(ch)
             if in_num:
-                in_min_exp = False
                 output.append(num)
+                if in_min_exp:
+                    output.append(')')
+                in_min_exp = False
                 in_num = False
                 num = 0
                 output.append(ch)
-
         if in_num:
             digit = int(ch)
             num = num * 10 + digit
+
     if in_num:
         output.append(num)
+        if in_min_exp:
+            output.append(')')
     return output
 
 
@@ -102,13 +110,16 @@ def do(root):
     left = do(root.left)
     right = do(root.right)
 
-    return calculate(left, right, root.data)
+    try:
+        return calculate(left, right, root.data)
+    except ExpressionException as e:
+        print(e)
 
 
 def main():
-    a = "(6!+-3^2)#"
+    a = "2+--3!"
     inorder(create_tree(turn_to_postfix(expression_to_lst(a))))
-    print(do(create_tree(turn_to_postfix(expression_to_lst(a)))))
+    print("output: ", do(create_tree(turn_to_postfix(expression_to_lst(a)))))
 
 
 if __name__ == "__main__":

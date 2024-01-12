@@ -1,10 +1,10 @@
 from exceptions import ExpressionException, SyntaxException
 
-operators = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
+operators = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3, 'u': 2, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
 
 
 def op_type(op):
-    if op == '~':
+    if op == '~' or op == 'u':
         return 'r'
     elif op == '!' or op == '#':
         return 'l'
@@ -53,21 +53,18 @@ def calculate(op1, op2, operation):
     res = 0
 
     # Check if the expression isn't valid
-    #
-    # try:
-    #    check_validity(op1, op2, operation)
-    # except ExpressionException:
-    #    pass
+
+    try:
+        check_validity(op1, op2, operation)
+    except ExpressionException as e:
+        print(e)
 
     # Check the operation and operate as such
     match operation:
         case '+':
             res = op1 + op2
         case '-':
-            if op1 == 0:
-                res = -op2
-            else:
-                res = op1 - op2
+            res = op1 - op2
         case '*':
             res = op1 * op2
         case '/':
@@ -87,14 +84,15 @@ def calculate(op1, op2, operation):
         case '&':
             res = min(op1, op2)
         case '!':
-            if operation != '!':
-                if isinstance(op1, float):
-                    raise ExpressionException("Factorial can't have a float as an operand")
-                elif op1 < 0:
-                    raise ExpressionException("Can't calculate a factorial on a negative number")
+            if isinstance(op1, float):
+                raise ExpressionException("Factorial can't have a float as an operand")
+            elif op1 < 0:
+                raise ExpressionException("Can't calculate a factorial on a negative number")
             res = factorial(op1)
         case '#':
             res = count(op1)
+        case 'u':
+            res = -op2
     return res
 
 
@@ -117,17 +115,17 @@ def check_validity(op1, op2, operation):
     :return: if operation is valid
     :raises: if operation is not in the right syntax...
     """
-    if (op1 is None or op2 is None) and operation != '-' and operation != '~' and operation != '!':
+    if (op1 is None or op2 is None) and op_type(operation) == 'm':
         raise SyntaxException("Operation is not acceptable, you need the two operands to be other than none... "
                               "\nExpression:", op1, operation, op2, "\nRight Syntax: x", operation, "y")
-    if (op1 is None or op2 is not None) and operation == '~':
+    if (op1 is not None or op2 is None) and op_type(operation) == 'r':
         raise SyntaxException("Operation is not acceptable, in ~ operation, you need the first operand to be none "
                               "and the second one needs to be other than none... \nRight syntax:", operation, "x")
     if op2 is None and operation == '-':
         raise SyntaxException("Operation is not acceptable, in - operation, you need the first operand to be none "
                               "and the second one needs to be other than none... "
                               "\nRight syntax:", operation, "x or: x", operation, "y")
-    if op2 is not None and operation == '!':
+    if op2 is not None and op_type(operation) == 'l':
         raise SyntaxException("Operation is not acceptable, in ! operation, you need the second operand to be "
                               "none... \nExpression:", op1, operation, op2)
     return True
