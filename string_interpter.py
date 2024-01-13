@@ -1,6 +1,7 @@
 from binary_tree import TreeNode
-from exceptions import ExpressionException
+from exceptions import ExpressionException, SyntaxException
 from operators import is_operator, priority, op_type, calculate
+from validity_check import check
 
 
 def inorder(root):
@@ -17,12 +18,16 @@ def create_tree(postfix_expression):
         if isinstance(item, str) and is_operator(item):
             type_operator = op_type(item)
             if type_operator == 'r':
-                t.right = stack.pop()
+                if stack:
+                    t.right = stack.pop()
             elif type_operator == 'l':
-                t.left = stack.pop()
+                if stack:
+                    t.left = stack.pop()
             else:
-                t.right = stack.pop()
-                t.left = stack.pop()
+                if stack:
+                    t.right = stack.pop()
+                if stack:
+                    t.left = stack.pop()
         stack.append(t)
 
     return stack.pop()
@@ -47,7 +52,8 @@ def turn_to_postfix(expression):
                 postfix.append(operator_stack.pop())
             operator_stack.pop()
         elif is_operator(item):
-            while operator_stack and operator_stack[-1] != '(' and priority(operator_stack[-1]) >= priority(item):
+            while (operator_stack and operator_stack[-1] != '(' and priority(operator_stack[-1]) >= priority(item) and
+                   not (operator_stack[-1] == 'u' and item == 'u')):
                 postfix.append(operator_stack.pop())
             operator_stack.append(item)
 
@@ -59,6 +65,7 @@ def turn_to_postfix(expression):
 def expression_to_lst(expression):
     in_num = False
     in_min_exp = False
+    a = False
     output = []
     num = 0
     for index in range(0, len(expression)):
@@ -68,25 +75,24 @@ def expression_to_lst(expression):
         else:
             if not in_num:
                 if ch == '-':
-                    if in_min_exp:
-                        output.pop()
-                        output.pop()
-                        in_min_exp = False
-                    elif output and output[-1] != ')':
+                    # unary?
+                    if output and output[-1] == 'u':
+                        output.append('u')
+                    elif output and is_operator(output[-1]):
                         output.append('(')
                         output.append('u')
                         in_min_exp = True
+                    elif not output or output[-1] == '(':
+                        output.append('u')
                     else:
-                        in_min_exp = False
                         output.append('-')
                 else:
-                    in_min_exp = False
                     output.append(ch)
-            if in_num:
+            else:
                 output.append(num)
                 if in_min_exp:
                     output.append(')')
-                in_min_exp = False
+                    in_min_exp = False
                 in_num = False
                 num = 0
                 output.append(ch)
@@ -98,13 +104,14 @@ def expression_to_lst(expression):
         output.append(num)
         if in_min_exp:
             output.append(')')
+
     return output
 
 
 def do(root):
     if not root:
         return None
-    if root.is_leaf():
+    if root.is_leaf() and not is_operator(root.data):
         return root.data
 
     left = do(root.left)
@@ -114,12 +121,17 @@ def do(root):
         return calculate(left, right, root.data)
     except ExpressionException as e:
         print(e)
+    except SyntaxException as e:
+        print(e)
 
 
 def main():
-    a = "(12+6)-(-5&--1)"
-    inorder(create_tree(turn_to_postfix(expression_to_lst(a))))
-    print("output: ", do(create_tree(turn_to_postfix(expression_to_lst(a)))))
+    a = "!"
+    if check(a):
+        inorder(create_tree(turn_to_postfix(expression_to_lst(a))))
+        print("output: ", do(create_tree(turn_to_postfix(expression_to_lst(a)))))
+    else:
+        print("Not Valid")
 
 
 if __name__ == "__main__":
