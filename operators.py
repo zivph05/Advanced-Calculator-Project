@@ -1,6 +1,6 @@
 from exceptions import ExpressionException, SyntaxException
 
-operators = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3, 'u': 2, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
+operators = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3, 'u': 3.5, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
 
 
 def op_type(op):
@@ -69,7 +69,8 @@ def calculate(op1, op2, operation):
             res = op1 * op2
         case '/':
             if op2 == 0:
-                raise ExpressionException("Can't have second operand be zero in division:", op1, "/", op2)
+                message = "Can't have second operand be zero in division:", op1, "/", op2
+                raise ExpressionException(message)
             res = op1 / op2
         case '^':
             res = op1 ** op2
@@ -116,18 +117,24 @@ def check_validity(op1, op2, operation):
     :raises: if operation is not in the right syntax...
     """
     if (op1 is None or op2 is None) and op_type(operation) == 'm':
-        raise SyntaxException("Operation is not acceptable, you need the two operands to be other than none... "
-                              "\nExpression:", op1, operation, op2, "\nRight Syntax: x", operation, "y")
+        message = ("Operation is not acceptable, you need the two operands to be other than none...\nRight Syntax: x %s"
+                   % operation, "y")
+        raise SyntaxException(message)
+
     if (op1 is not None or op2 is None) and op_type(operation) == 'r':
-        raise SyntaxException("Operation is not acceptable, in ~ operation, you need the first operand to be none "
-                              "and the second one needs to be other than none... \nRight syntax:", operation, "x")
-    if op2 is None and operation == '-':
-        raise SyntaxException("Operation is not acceptable, in - operation, you need the first operand to be none "
-                              "and the second one needs to be other than none... "
-                              "\nRight syntax:", operation, "x or: x", operation, "y")
-    if op2 is not None and op_type(operation) == 'l':
-        raise SyntaxException("Operation is not acceptable, in ! operation, you need the second operand to be "
-                              "none... \nExpression:", op1, operation, op2)
+        message = ("Operation is not acceptable, in ", operation, "operation, you need the first operand to be none "
+                                                                  "and the second one needs to be other than none... "
+                                                                  "\nRight syntax:", operation, "x")
+
+        if operation == 'u':
+            message = ("Operation is not acceptable, in unary - operation, you need the first operand to be none "
+                       "and the second one needs to be other than none... \nRight syntax: -x")
+        raise SyntaxException(message)
+
+    if (op1 is None or op2 is not None) and op_type(operation) == 'l':
+        message = ("Operation is not acceptable, in ! operation, you need the second operand to be none... \nRight "
+                   "syntax: x", operation)
+        raise SyntaxException(message)
     return True
 
 
