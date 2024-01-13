@@ -1,6 +1,8 @@
 class ExpressionException(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
 
 
 class SyntaxException(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
