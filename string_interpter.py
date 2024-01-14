@@ -1,7 +1,7 @@
 from binary_tree import TreeNode
 from exceptions import ExpressionException, SyntaxException
 from operators import is_operator, priority, op_type, calculate
-from validity_check import check
+from validity_check import check, go
 
 
 def inorder(root):
@@ -82,12 +82,9 @@ def expression_to_lst(expression):
                             in_min_exp = False
                         output.pop()
                     elif output and is_operator(output[-1]):
-                        if priority(output[-1]) < priority('u'):
-                            output.append('_')
-                        else:
-                            output.append('(')
-                            output.append('u')
-                            in_min_exp = True
+                        output.append('(')
+                        output.append('u')
+                        in_min_exp = True
                     elif not output or output[-1] == '(':
                         output.append('_')
                     else:
@@ -131,12 +128,25 @@ def do(root):
 
 
 def main():
-    a = "56+12$-985&25+54"
+    try:
+        a = input("Enter an expression: ")
+    except EOFError:
+        print("Keyboard Interrupt, Ending Program...")
+        return
     if check(a):
-        inorder(create_tree(turn_to_postfix(expression_to_lst(a))))
-        print("output: ", do(create_tree(turn_to_postfix(expression_to_lst(a)))))
+        lst = expression_to_lst(a)
+        try:
+            go(lst)
+            inorder(create_tree(turn_to_postfix(lst)))
+            print("output: ", do(create_tree(turn_to_postfix(lst))))
+        except ExpressionException as e:
+            print(e)
+        except SyntaxException as e:
+            print(e)
     else:
         print("Not Valid")
+
+        # _ after ( after start, u and _ cant be before operation
 
 
 if __name__ == "__main__":
