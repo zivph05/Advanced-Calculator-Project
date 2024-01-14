@@ -1,5 +1,5 @@
 from exceptions import SyntaxException
-from operators import is_operator, op_type
+from operators import is_operator, op_type, rep
 
 
 def check(expression):
@@ -47,8 +47,22 @@ def tilda_check(expression):
 def check_line(expression):
     for index in range(0, len(expression)):
         ch = expression[index]
-        if not ('0' <= ch <= '9' or is_operator(ch) or ch == ')' or ch == '('):
+        if not ('0' <= ch <= '9' or (is_operator(ch) and ch not in rep) or ch == ')' or ch == '('):
             return False
+    return True
+
+
+def go(lst):
+    for index in range(0, len(lst)):
+        item = lst[index]
+        if is_operator(item) and op_type(item) == 'm':
+            index_1 = index - 1
+            index_2 = index + 1
+            if index_1 < 0 or index_2 >= len(lst):
+                return False
+
+            item_1 = lst[index_1]
+            item_2 = lst[index_2]
     return True
 
 

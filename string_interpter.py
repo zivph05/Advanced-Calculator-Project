@@ -76,14 +76,20 @@ def expression_to_lst(expression):
             if not in_num:
                 if ch == '-':
                     # unary?
-                    if output and output[-1] == 'u':
-                        output.append('u')
+                    if output and (output[-1] == 'u' or output[-1] == '_'):
+                        if in_min_exp:
+                            output.pop()
+                            in_min_exp = False
+                        output.pop()
                     elif output and is_operator(output[-1]):
-                        output.append('(')
-                        output.append('u')
-                        in_min_exp = True
+                        if priority(output[-1]) < priority('u'):
+                            output.append('_')
+                        else:
+                            output.append('(')
+                            output.append('u')
+                            in_min_exp = True
                     elif not output or output[-1] == '(':
-                        output.append('u')
+                        output.append('_')
                     else:
                         output.append('-')
                 else:
@@ -114,10 +120,9 @@ def do(root):
     if root.is_leaf() and not is_operator(root.data):
         return root.data
 
-    left = do(root.left)
-    right = do(root.right)
-
     try:
+        left = do(root.left)
+        right = do(root.right)
         return calculate(left, right, root.data)
     except ExpressionException as e:
         print(e)
@@ -126,7 +131,7 @@ def do(root):
 
 
 def main():
-    a = "!"
+    a = "56+12$-985&25+54"
     if check(a):
         inorder(create_tree(turn_to_postfix(expression_to_lst(a))))
         print("output: ", do(create_tree(turn_to_postfix(expression_to_lst(a)))))

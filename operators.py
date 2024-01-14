@@ -1,10 +1,11 @@
 from exceptions import ExpressionException, SyntaxException
 
-operators = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3, 'u': 3.5, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
+operators = {'+': 1, '-': 1, '*': 2, '_': 2, '/': 2, '^': 3, 'u': 3.5, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
+rep = ['_', 'u']
 
 
 def op_type(op):
-    if op == '~' or op == 'u':
+    if op == '~' or op == 'u' or op == '_':
         return 'r'
     elif op == '!' or op == '#':
         return 'l'
@@ -94,6 +95,8 @@ def calculate(op1, op2, operation):
             res = count(op1)
         case 'u':
             res = -op2
+        case '_':
+            res = -op2
     return res
 
 
@@ -126,14 +129,14 @@ def check_validity(op1, op2, operation):
                                                                   "and the second one needs to be other than none... "
                                                                   "\nRight syntax:", operation, "x")
 
-        if operation == 'u':
+        if operation == 'u' or operation == '_':
             message = ("Operation is not acceptable, in unary - operation, you need the first operand to be none "
                        "and the second one needs to be other than none... \nRight syntax: -x")
         raise SyntaxException(message)
 
     if (op1 is None or op2 is not None) and op_type(operation) == 'l':
-        message = ("Operation is not acceptable, in ! operation, you need the second operand to be none... \nRight "
-                   "syntax: x", operation)
+        message = ("Operation is not acceptable, in ", operation, "operation, you need the second operand to be "
+                                                                  "none... \nRight syntax: x", operation)
         raise SyntaxException(message)
     return True
 
