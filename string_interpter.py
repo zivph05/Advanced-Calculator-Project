@@ -52,8 +52,7 @@ def turn_to_postfix(expression):
                 postfix.append(operator_stack.pop())
             operator_stack.pop()
         elif is_operator(item):
-            while (operator_stack and operator_stack[-1] != '(' and priority(operator_stack[-1]) >= priority(item) and
-                   not (operator_stack[-1] == 'u' and item == 'u')):
+            while operator_stack and operator_stack[-1] != '(' and priority(operator_stack[-1]) >= priority(item):
                 postfix.append(operator_stack.pop())
             operator_stack.append(item)
 
@@ -64,27 +63,21 @@ def turn_to_postfix(expression):
 
 def expression_to_lst(expression):
     in_num = False
-    in_min_exp = False
-    a = False
+    after_dot = False
     output = []
     num = 0
-    for index in range(0, len(expression)):
-        ch = expression[index]
+    dot = 0.0
+    for ch in expression:
         if '0' <= ch <= '9':
             in_num = True
-        else:
+        elif is_operator(ch) or ch in "()":
             if not in_num:
                 if ch == '-':
                     # unary?
                     if output and (output[-1] == 'u' or output[-1] == '_'):
-                        if in_min_exp:
-                            output.pop()
-                            in_min_exp = False
                         output.pop()
-                    elif output and is_operator(output[-1]):
-                        output.append('(')
+                    elif output and is_operator(output[-1]) and op_type(output[-1]) != 'l':
                         output.append('u')
-                        in_min_exp = True
                     elif not output or output[-1] == '(':
                         output.append('_')
                     else:
@@ -92,23 +85,36 @@ def expression_to_lst(expression):
                 else:
                     output.append(ch)
             else:
+                num = make_num(after_dot, num, dot)
                 output.append(num)
-                if in_min_exp:
-                    output.append(')')
-                    in_min_exp = False
+                if after_dot:
+                    after_dot = False
+                    dot = 0.0
                 in_num = False
                 num = 0
                 output.append(ch)
-        if in_num:
-            digit = int(ch)
-            num = num * 10 + digit
-
+        if in_num and ch != '.':
+            if after_dot:
+                digit = int(ch)
+                dot = dot * 10 + digit
+            else:
+                digit = int(ch)
+                num = num * 10 + digit
+        if ch == '.':
+            after_dot = True
     if in_num:
+        num = make_num(after_dot, num, dot)
         output.append(num)
-        if in_min_exp:
-            output.append(')')
 
     return output
+
+
+def make_num(after_dot, num, dot):
+    if after_dot:
+        while dot > 1:
+            dot /= 10
+        num += dot
+    return num
 
 
 def do(root):
@@ -121,20 +127,21 @@ def do(root):
         left = do(root.left)
         right = do(root.right)
         return calculate(left, right, root.data)
-    except ExpressionException as e:
-        print(e)
-    except SyntaxException as e:
-        print(e)
+    except ExpressionException:
+        raise
+    except SyntaxException:
+        raise
 
 
 def main():
     try:
         a = input("Enter an expression: ")
-    except EOFError:
+    except (EOFError, KeyboardInterrupt):
         print("Keyboard Interrupt, Ending Program...")
         return
-    if check(a):
-        lst = expression_to_lst(a)
+    exp = a.replace(" ", "")
+    if check(exp):
+        lst = expression_to_lst(exp)
         try:
             go(lst)
             inorder(create_tree(turn_to_postfix(lst)))

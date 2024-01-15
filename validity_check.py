@@ -43,19 +43,23 @@ def parentheses_check(expression):
 def tilda_check(expression):
     for index in range(0, len(expression)):
         ch = expression[index]
-        if expression[index] == '~':
+        unary = False
+        if ch == '-':
+            if index != 0:
+                ch_before = expression[index - 1]
+                if (ch_before == '(') or (is_operator(ch_before) and op_type(ch_before) != 'l'):
+                    unary = True
+            else:
+                unary = True
+        if expression[index] == '~' or unary:
             flag = True
             done = False
-            past_one_min = False
             index += 1
             while index < len(expression) and flag and not done:
-                if ((is_operator(expression[index]) and expression[index] != '-') or expression[index] == ')' or
-                        (past_one_min and expression[index] == '-')):
+                if (is_operator(expression[index]) and expression[index] != '-') or expression[index] == ')':
                     flag = False
                 elif expression[index] == '(' or '0' <= expression[index] <= '9':
                     done = True
-                else:
-                    past_one_min = True
                 index += 1
             if not flag:
                 return False
@@ -67,8 +71,22 @@ def check_line(expression):
         return False
     for index in range(0, len(expression)):
         ch = expression[index]
-        if not ('0' <= ch <= '9' or (is_operator(ch) and ch not in rep) or ch == ')' or ch == '('):
+        if not ('0' <= ch <= '9' or (is_operator(ch) and ch not in rep) or ch == ')' or ch == '(' or ch == '.'):
             return False
+        if ch == '.':
+            index_1 = index - 1
+            index_2 = index + 1
+            if index_1 < 0:
+                return False
+                # raise SyntaxException("No .")
+            if index_2 >= len(expression):
+                return False
+                # raise SyntaxException("No .")
+            ch_b = expression[index_1]
+            ch_a = expression[index_2]
+            if ch_b not in "0123456789" or ch_a not in "0123456789":
+                return False
+            # raise SyntaxException("No .")
     return True
 
 

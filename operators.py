@@ -1,6 +1,9 @@
+from math import pow
+
 from exceptions import ExpressionException, SyntaxException
 
-operators = {'+': 1, '-': 1, '*': 2, '_': 2, '/': 2, '^': 3, 'u': 3.5, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6, '#': 5}
+operators = {'+': 1, '-': 1, '*': 2, '_': 2, '/': 2, '^': 3, 'u': 7, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6,
+             '#': 5}
 rep = ['_', 'u']
 
 
@@ -14,10 +17,13 @@ def op_type(op):
 
 def count(op):
     res = 0
-    while op > 10:
-        res += int(op % 10)
-        op /= 10
-    return res + int(op)
+    str_op = str(op)
+    a = str_op.split('.')
+    for index in range(0, len(a)):
+        for index_1 in range(0, len(a[index])):
+            ch = a[index][index_1]
+            res += int(ch)
+    return res
 
 
 def factorial(op):
@@ -26,8 +32,15 @@ def factorial(op):
     :param op: the number in calculation
     :return: the factorial of op (op!)
     """
-    res = 1
+    res = 1.0
+
+    if op == float('inf'):
+        return float('inf')
+
+    op_int = int(op)
     for i in range(2, op + 1):
+        if res == float('inf'):
+            return float('inf')
         res *= i
     return res
 
@@ -55,11 +68,6 @@ def calculate(op1, op2, operation):
 
     # Check if the expression isn't valid
 
-    try:
-        check_validity(op1, op2, operation)
-    except ExpressionException as e:
-        print(e)
-
     # Check the operation and operate as such
     match operation:
         case '+':
@@ -74,7 +82,15 @@ def calculate(op1, op2, operation):
                 raise ExpressionException(message)
             res = op1 / op2
         case '^':
-            res = op1 ** op2
+            if op1 < 0 and (-1 < op2 < 1) and op2 != 0:
+                raise ExpressionException("Can't have a negative number be in root of (when the second op is between "
+                                          "1 and -1 and not zero)")
+            if op1 == 0 and op2 < 1:
+                raise ExpressionException("Can't have a 0 in power of a number smaller than 1")
+            try:
+                res = pow(op1, op2)
+            except OverflowError:
+                res = float('inf')
         case '%':
             res = op1 % op2
         case '~':
@@ -86,12 +102,14 @@ def calculate(op1, op2, operation):
         case '&':
             res = min(op1, op2)
         case '!':
-            if isinstance(op1, float):
+            if (op1 % 1) != 0 and op1 != float('inf'):
                 raise ExpressionException("Factorial can't have a float as an operand")
             elif op1 < 0:
                 raise ExpressionException("Can't calculate a factorial on a negative number")
             res = factorial(op1)
         case '#':
+            if op1 < 0:
+                raise ExpressionException("Can't calculate a counting expression on a negative number")
             res = count(op1)
         case 'u':
             res = -op2
@@ -119,6 +137,7 @@ def check_validity(op1, op2, operation):
     :return: if operation is valid
     :raises: if operation is not in the right syntax...
     """
+
     if (op1 is None or op2 is None) and op_type(operation) == 'm':
         message = ("Operation is not acceptable, you need the two operands to be other than none...\nRight Syntax: x %s"
                    % operation, "y")
