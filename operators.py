@@ -2,8 +2,8 @@ from math import pow
 
 from exceptions import ExpressionException, SyntaxException
 
-operators = {'+': 1, '-': 1, '*': 2, '_': 2, '/': 2, '^': 3, 'u': 7, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6,
-             '#': 5}
+operators = {'+': 1, '-': 1, '*': 2, '/': 2, '_': 2.5, '^': 3, 'u': 7, '%': 4, '@': 5, '$': 5, '&': 5, '~': 6, '!': 6,
+             '#': 6}
 rep = ['_', 'u']
 
 
@@ -16,6 +16,9 @@ def op_type(op):
 
 
 def count(op):
+    if op == float('inf'):
+        return float('inf')
+
     res = 0
     str_op = str(op)
     a = str_op.split('.')
@@ -32,16 +35,16 @@ def factorial(op):
     :param op: the number in calculation
     :return: the factorial of op (op!)
     """
-    res = 1.0
-
+    res = 1
     if op == float('inf'):
         return float('inf')
 
     op_int = int(op)
-    for i in range(2, op + 1):
-        if res == float('inf'):
+    for i in range(2, op_int + 1):
+        try:
+            res *= i
+        except OverflowError:
             return float('inf')
-        res *= i
     return res
 
 
@@ -77,10 +80,10 @@ def calculate(op1, op2, operation):
         case '*':
             res = op1 * op2
         case '/':
-            if op2 == 0:
-                message = "Can't have second operand be zero in division:", op1, "/", op2
-                raise ExpressionException(message)
-            res = op1 / op2
+            try:
+                res = round(op1 / op2, 10)
+            except ZeroDivisionError:
+                raise
         case '^':
             if op1 < 0 and (-1 < op2 < 1) and op2 != 0:
                 raise ExpressionException("Can't have a negative number be in root of (when the second op is between "
@@ -92,11 +95,14 @@ def calculate(op1, op2, operation):
             except OverflowError:
                 res = float('inf')
         case '%':
-            res = op1 % op2
+            try:
+                res = round(op1 % op2, 10)
+            except ZeroDivisionError:
+                raise
         case '~':
             res = -op2
         case '@':
-            res = mean(op1, op2)
+            res = round(mean(op1, op2), 10)
         case '$':
             res = max(op1, op2)
         case '&':
@@ -126,38 +132,6 @@ def priority(operation):
     """
     # Check the operation and return the "power of" the operation
     return operators.get(operation)
-
-
-def check_validity(op1, op2, operation):
-    """
-    Checks if the operation at hand is valid
-    :param op1: part of operation - first operand
-    :param op2: part of operation - second operand
-    :param operation: part of operation - operation
-    :return: if operation is valid
-    :raises: if operation is not in the right syntax...
-    """
-
-    if (op1 is None or op2 is None) and op_type(operation) == 'm':
-        message = ("Operation is not acceptable, you need the two operands to be other than none...\nRight Syntax: x %s"
-                   % operation, "y")
-        raise SyntaxException(message)
-
-    if (op1 is not None or op2 is None) and op_type(operation) == 'r':
-        message = ("Operation is not acceptable, in ", operation, "operation, you need the first operand to be none "
-                                                                  "and the second one needs to be other than none... "
-                                                                  "\nRight syntax:", operation, "x")
-
-        if operation == 'u' or operation == '_':
-            message = ("Operation is not acceptable, in unary - operation, you need the first operand to be none "
-                       "and the second one needs to be other than none... \nRight syntax: -x")
-        raise SyntaxException(message)
-
-    if (op1 is None or op2 is not None) and op_type(operation) == 'l':
-        message = ("Operation is not acceptable, in ", operation, "operation, you need the second operand to be "
-                                                                  "none... \nRight syntax: x", operation)
-        raise SyntaxException(message)
-    return True
 
 
 def is_operator(ch):
