@@ -1,7 +1,7 @@
 from binary_tree import TreeNode
 from exceptions import ExpressionException, SyntaxException
-from operators import is_operator, priority, op_type, calculate
-from validity_check import check, go
+from operators import is_operator, priority, op_type, calculate, rep
+from validity_check import check, check_list
 
 
 def inorder(root):
@@ -62,59 +62,63 @@ def turn_to_postfix(expression):
 
 
 def expression_to_lst(expression):
-    in_num = False
-    after_dot = False
     output = []
-    num = 0
-    dot = 0.0
-    for ch in expression:
+    index = 0
+    while index in range(0, len(expression)):
+        ch = expression[index]
         if '0' <= ch <= '9':
-            in_num = True
-        elif is_operator(ch) or ch in "()":
-            if not in_num:
-                if ch == '-':
-                    # unary?
-                    if output and (output[-1] == 'u' or output[-1] == '_'):
-                        output.pop()
-                    elif output and is_operator(output[-1]) and op_type(output[-1]) != 'l':
-                        output.append('u')
-                    elif not output or output[-1] == '(':
-                        output.append('_')
-                    else:
-                        output.append('-')
-                else:
-                    output.append(ch)
-            else:
-                num = make_num(after_dot, num, dot)
+            try:
+                new_index, num = make_num(expression, index)
                 output.append(num)
-                if after_dot:
-                    after_dot = False
-                    dot = 0.0
-                in_num = False
-                num = 0
-                output.append(ch)
-        if in_num and ch != '.':
-            if after_dot:
-                digit = int(ch)
-                dot = dot * 10 + digit
+                index = new_index
+            except SyntaxException:
+                raise
+        elif is_operator(ch) and ch not in rep:
+            if ch == '-':
+                # unary?
+                if output and (output[-1] == 'u' or output[-1] == '_'):
+                    output.pop()
+                elif output and is_operator(output[-1]) and op_type(output[-1]) != 'l':
+                    output.append('u')
+                elif not output or output[-1] == '(':
+                    output.append('_')
+                else:
+                    output.append('-')
             else:
-                digit = int(ch)
-                num = num * 10 + digit
-        if ch == '.':
-            after_dot = True
-    if in_num:
-        num = make_num(after_dot, num, dot)
-        output.append(num)
-
+                output.append(ch)
+            index += 1
+        else:
+            if ch not in ".()":
+                raise SyntaxException("Unidentified character")
+            output.append(ch)
+            index += 1
     return output
 
 
-def make_num(after_dot, num, dot):
+def make_num(expression, index):
+    ch = expression[index]
+    num = 0
+    dot = 0.0
+    after_dot = False
+    while index < len(expression) and ch in "0123456789.":
+        if ch == '.':
+            if after_dot:
+                raise SyntaxException("A dot needs to be between 2 numbers...")
+            after_dot = True
+        elif after_dot:
+            digit = int(ch)
+            dot = dot * 10 + digit
+        else:
+            digit = int(ch)
+            num = num * 10 + digit
+        index += 1
+        if index < len(expression):
+            ch = expression[index]
     if after_dot:
         while dot > 1:
             dot /= 10
         num += dot
-    return num
+    return index, num
 
 
 def do(root):
@@ -131,27 +135,32 @@ def do(root):
         raise
     except SyntaxException:
         raise
+    except ZeroDivisionError:
+        raise
 
 
 def main():
     try:
         a = input("Enter an expression: ")
-    except (EOFError, KeyboardInterrupt):
-        print("Keyboard Interrupt, Ending Program...")
+    except EOFError:
+        print("EOF, Ending Program...")
         return
     exp = a.replace(" ", "")
-    if check(exp):
+    exp = a.replace("\n", "")
+    exp = a.replace("\t", "")
+
+    try:
+        check(exp)
         lst = expression_to_lst(exp)
-        try:
-            go(lst)
-            inorder(create_tree(turn_to_postfix(lst)))
-            print("output: ", do(create_tree(turn_to_postfix(lst))))
-        except ExpressionException as e:
-            print(e)
-        except SyntaxException as e:
-            print(e)
-    else:
-        print("Not Valid")
+        check_list(lst)
+        inorder(create_tree(turn_to_postfix(lst)))
+        print("output: ", do(create_tree(turn_to_postfix(lst))))
+    except ExpressionException as e:
+        print(e)
+    except SyntaxException as e:
+        print(e)
+    except ZeroDivisionError as e:
+        print("Error! ", e)
 
         # _ after ( after start, u and _ cant be before operation
 
