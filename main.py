@@ -3,6 +3,11 @@ from solve_expression import ExpressionSolver
 
 
 def main():
+    """
+    Main function, Gets an Expression and outputs the result
+    Until EOF
+    Prints the result of the expression given
+    """
     while True:
         try:
             expression = input("Enter an expression: ")
