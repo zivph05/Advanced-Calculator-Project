@@ -174,7 +174,7 @@ def priority(op: str):
     :param op: the operation that is being evaluated
     :return: the power of the operation given
     """
-    return operators.get(op).get_imporatnce()
+    return operators.get(op).get_importance()
 
 
 def op_type(op: str) -> str:
