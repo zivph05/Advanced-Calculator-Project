@@ -12,7 +12,11 @@ class ExpressionSolver:
         :param expression: the expression in check
         :raises: if Validity Check has found an error...
         """
-        check = ValidityCheck(expression)
+        exp = expression.replace(" ", "")
+        exp = exp.replace("\n", "")
+        exp = exp.replace("\t", "")
+
+        check = ValidityCheck(exp)
         try:
             self.expression_lst = check.make_valid_list()
         except SyntaxException:
