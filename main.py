@@ -14,12 +14,9 @@ def main():
         except EOFError:
             print("EOF, Ending Program...")
             return
-        exp = expression.replace(" ", "")
-        exp = exp.replace("\n", "")
-        exp = exp.replace("\t", "")
 
         try:
-            solver = ExpressionSolver(exp)
+            solver = ExpressionSolver(expression)
             print(solver.solve())
         except SyntaxException as e:
             print("Error in syntax!", e)
