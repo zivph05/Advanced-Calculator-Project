@@ -49,6 +49,8 @@ from solve_expression import ExpressionSolver
          "Can't have a 0 in power of a number smaller than 1"),
 
         ("--(12+69*0.5)/(-2^3+65)+(3!)#@(~-3)", "5.3157894737"),
+        ("33+50/5+98--5+6*(12 % 5@4+9#-2!&1)", "212.0"),
+        ("~7+9&-8+(5!-100)  / (24 $ 6 % 5)-17+12@6", "-18.0")
     ])
 def test_expression(expression, expectation):
     try:
