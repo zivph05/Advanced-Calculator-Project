@@ -84,9 +84,9 @@ def tilda_and_unary_check(expression):
             while index < len(expression) and not done:
                 if (is_operator(expression[index]) and expression[index] != '-') or expression[index] == ')':
                     if unary:
-                        raise SyntaxException("In unary - action, you need to have only an expression"
+                        raise SyntaxException("In unary - action, you need to have only an expression "
                                               "or another unary minus")
-                    raise SyntaxException("In ~ action, you need to have only an expression"
+                    raise SyntaxException("In ~ action, you need to have only an expression "
                                           "or an unary minus")
                 elif expression[index] == '(' or '0' <= expression[index] <= '9':
                     done = True
