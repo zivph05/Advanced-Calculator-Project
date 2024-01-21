@@ -76,15 +76,12 @@ def factorial(operand):
     :return: the factorial of op (operand!)
     """
     res = 1
-    if operand == float('inf'):
+    if operand == float('inf') or operand >= 10000:
         return float('inf')
 
     operand_int = int(operand)
     for i in range(2, operand_int + 1):
-        try:
-            res *= i
-        except OverflowError:
-            return float('inf')
+        res *= i
     return res
 
 
