@@ -53,8 +53,8 @@ rep = ['_', 'u']
 def count(operand):
     """
     Sums up each digit in a number, before or after a decimal point, if number is too big, returns inf
-    :param operand:
-    :return:
+    :param operand: The operand in the expression
+    :return: the sum of the digits in the number
     """
     if operand == float('inf'):
         return float('inf')
@@ -65,7 +65,8 @@ def count(operand):
     for index in range(0, len(split_num)):
         for index_1 in range(0, len(split_num[index])):
             digit = split_num[index][index_1]
-            res += int(digit)
+            if digit.isnumeric():
+                res += int(digit)
     return res
 
 
@@ -76,12 +77,15 @@ def factorial(operand):
     :return: the factorial of op (operand!)
     """
     res = 1
-    if operand == float('inf') or operand >= 10000:
+    if operand == float('inf'):
         return float('inf')
 
     operand_int = int(operand)
     for i in range(2, operand_int + 1):
-        res *= i
+        try:
+            res *= i
+        except OverflowError:
+            return float('inf')
     return res
 
 
@@ -110,9 +114,6 @@ def calculate(op1, op2, operation: str):
     """
     res = 0
 
-    # Check if the expression isn't valid
-
-    # Check the operation and operate as such
     match operation:
         case '+':
             res = op1 + op2
@@ -132,18 +133,18 @@ def calculate(op1, op2, operation: str):
             if op1 == 0 and op2 < 1:
                 raise ArithmeticError("Can't have a 0 in power of a number smaller than 1")
             try:
-                res = pow(op1, op2)
+                res = round(pow(op1, op2), 10)
             except OverflowError:
                 res = float('inf')
         case '%':
             try:
-                res = round(op1 % op2, 10)
+                res = op1 % op2
             except ZeroDivisionError:
                 raise
         case '~':
             res = -op2
         case '@':
-            res = round(mean(op1, op2), 10)
+            res = mean(op1, op2)
         case '$':
             res = max(op1, op2)
         case '&':
