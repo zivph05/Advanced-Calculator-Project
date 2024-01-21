@@ -58,15 +58,19 @@ def count(operand):
     """
     if operand == float('inf'):
         return float('inf')
-
+    done = False
     res = 0
     str_op = str(operand)
     split_num = str_op.split('.')
     for index in range(0, len(split_num)):
-        for index_1 in range(0, len(split_num[index])):
+        index_1 = 0
+        while index_1 < len(split_num[index]) and not done:
             digit = split_num[index][index_1]
-            if digit.isnumeric():
+            if not digit.isnumeric():
+                done = True
+            else:
                 res += int(digit)
+                index_1 += 1
     return res
 
 
